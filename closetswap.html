@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ClosetSwap – Mode Circulaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --sage:#7BAE7F;--sage-dark:#5a9060;--sage-light:#b2d8b5;--sage-pale:#e8f5e9;
+  --sage-mist:#f0f7f0;--cream:#fdfcf8;--charcoal:#1a1f1a;--slate:#4a5568;
+  --silver:#9ca3af;--white:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);overflow-x:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--sage-mist)}
+::-webkit-scrollbar-thumb{background:var(--sage-light);border-radius:3px}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 5vw;background:var(--cream);border-bottom:1px solid transparent;transition:all .3s}
+nav.scrolled{background:rgba(253,252,248,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--sage-light)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{background:none;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--charcoal);letter-spacing:-.5px;text-decoration:none}
+.logo span{color:var(--sage)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-link{background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;color:var(--slate);border-bottom:2px solid transparent;padding-bottom:2px;transition:all .2s}
+.nav-link.active,.nav-link:hover{color:var(--sage-dark);font-weight:600;border-bottom-color:var(--sage)}
+.nav-right{display:flex;align-items:center;gap:14px}
+.lang-toggle{display:flex;gap:2px;background:var(--sage-pale);border-radius:20px;padding:3px}
+.lang-btn{background:transparent;color:var(--slate);border:none;cursor:pointer;border-radius:16px;padding:4px 11px;font-size:11px;font-weight:600;transition:all .2s}
+.lang-btn.active{background:var(--sage);color:#fff}
+.user-chip{display:flex;align-items:center;gap:9px;background:var(--sage-pale);border-radius:24px;padding:5px 14px 5px 5px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--sage-dark));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.user-info{line-height:1.1}
+.user-label{font-size:9px;color:var(--silver);display:block}
+.user-credits{font-size:13px;font-weight:700;color:var(--sage-dark)}
+
+/* ── PAGES ── */
+.page{display:none;padding-top:68px;min-height:100vh}
+.page.active{display:block}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,var(--sage-mist) 0%,var(--cream) 55%,#f9ede0 100%);padding:70px 5vw 80px;position:relative;overflow:hidden}
+.hero-blob1{position:absolute;top:-100px;right:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(178,216,181,.25),transparent 70%);pointer-events:none}
+.hero-blob2{position:absolute;bottom:-80px;left:35%;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(240,217,200,.22),transparent 70%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:20px;padding:7px 16px;margin-bottom:24px;font-size:13px;color:var(--sage-dark);font-weight:500;animation:fadeUp .6s ease both}
+.hero-h1{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,76px);line-height:1.05;color:var(--charcoal);margin-bottom:6px;animation:fadeUp .6s .1s ease both}
+.hero-h1-green{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,76px);line-height:1.05;color:var(--sage);font-style:italic;margin-bottom:26px;animation:fadeUp .6s .2s ease both}
+.hero-sub{font-size:18px;color:var(--slate);line-height:1.7;max-width:460px;margin-bottom:38px;animation:fadeUp .6s .3s ease both}
+.hero-btns{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp .6s .4s ease both}
+.btn-primary{background:linear-gradient(135deg,var(--sage),var(--sage-dark));color:#fff;border:none;border-radius:40px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(123,174,127,.45);transition:all .25s;font-family:'DM Sans',sans-serif}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(123,174,127,.55)}
+.btn-outline{background:transparent;color:var(--sage-dark);border:2px solid var(--sage-light);border-radius:40px;padding:12px 28px;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif}
+.btn-outline:hover{background:var(--sage-pale);border-color:var(--sage)}
+.hero-stats{display:flex;gap:36px;margin-top:52px;animation:fadeUp .6s .5s ease both}
+.stat-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--sage-dark)}
+.stat-lbl{font-size:12px;color:var(--silver)}
+/* Hero collage */
+.hero-collage{position:relative;width:420px;height:440px;flex-shrink:0}
+.collage-card{position:absolute;border-radius:22px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.15)}
+.collage-card img{width:100%;height:100%;object-fit:cover}
+.c1{width:210px;height:270px;top:0;left:0;transform:rotate(-3deg);animation:floatA 4s ease-in-out infinite}
+.c2{width:185px;height:225px;top:40px;left:215px;transform:rotate(4deg);animation:floatB 4s 1s ease-in-out infinite}
+.c3{width:165px;height:185px;top:278px;left:20px;transform:rotate(-2deg);animation:floatC 4s .5s ease-in-out infinite}
+
+/* ── HOW IT WORKS ── */
+.how{padding:72px 5vw;background:var(--sage-mist)}
+.section-title{font-family:'Playfair Display',serif;font-size:34px;color:var(--charcoal);text-align:center;margin-bottom:52px}
+.how-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px}
+.how-card{border-radius:24px;padding:38px 30px;text-align:center}
+.how-icon{font-size:44px;margin-bottom:14px}
+.how-num{font-size:11px;font-weight:700;color:var(--sage);letter-spacing:3px;margin-bottom:10px}
+.how-title{font-size:20px;font-weight:700;color:var(--charcoal);margin-bottom:10px}
+.how-sub{font-size:14px;color:var(--slate);line-height:1.65}
+
+/* ── CAROUSEL ── */
+.carousel-section{padding:56px 0 44px;background:var(--white)}
+.carousel-header{max-width:1200px;margin:0 auto;padding:0 5vw;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.carousel-title{font-family:'Playfair Display',serif;font-size:30px;color:var(--charcoal)}
+.carousel-arrows{display:flex;gap:8px}
+.arrow-btn{width:40px;height:40px;border-radius:50%;background:var(--sage-pale);border:1px solid var(--sage-light);cursor:pointer;font-size:15px;color:var(--sage-dark);transition:all .2s;display:flex;align-items:center;justify-content:center}
+.arrow-btn:hover{background:var(--sage);color:#fff}
+.carousel-track{display:flex;gap:20px;overflow-x:auto;padding:4px 5vw 12px;scrollbar-width:none;cursor:grab}
+.carousel-track:active{cursor:grabbing}
+.carousel-track::-webkit-scrollbar{display:none}
+.car-card{flex:0 0 225px;border-radius:20px;overflow:hidden;background:var(--white);box-shadow:0 4px 20px rgba(0,0,0,.07);cursor:pointer;transition:all .3s}
+.car-card:hover{transform:translateY(-7px);box-shadow:0 14px 40px rgba(0,0,0,.13)}
+.car-img{height:185px;overflow:hidden;position:relative}
+.car-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.car-card:hover .car-img img{transform:scale(1.06)}
+.car-body{padding:14px 15px}
+.car-meta{font-size:11px;color:var(--silver);margin-bottom:5px}
+.car-name{font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:9px}
+.car-footer{display:flex;justify-content:space-between;align-items:center}
+
+/* ── CATEGORIES + FILTERS + GRID ── */
+.browse-section{padding:44px 5vw 80px;background:var(--white)}
+.browse-inner{max-width:1200px;margin:0 auto}
+.cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.cat-btn{background:var(--sage-pale);color:var(--sage-dark);border:1.5px solid var(--sage-light);border-radius:30px;padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.cat-btn.active{background:var(--sage);color:#fff;border-color:var(--sage)}
+.filters{display:flex;gap:14px;margin-bottom:30px;align-items:center;flex-wrap:wrap}
+.filter-label{font-size:13px;color:var(--slate);font-weight:500}
+.filter-select{appearance:none;background:var(--sage-pale);border:1.5px solid var(--sage-light);border-radius:20px;padding:8px 36px 8px 15px;font-size:13px;color:var(--sage-dark);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237BAE7F' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.items-count{margin-left:auto;font-size:13px;color:var(--silver)}
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:24px}
+.item-card{border-radius:24px;overflow:hidden;background:var(--white);box-shadow:0 4px 24px rgba(0,0,0,.07);cursor:pointer;transition:all .3s;border:1px solid var(--sage-pale)}
+.item-card:hover{transform:translateY(-9px);box-shadow:0 18px 52px rgba(0,0,0,.13)}
+.item-img{height:250px;overflow:hidden;position:relative}
+.item-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.item-card:hover .item-img img{transform:scale(1.07)}
+.item-badge{position:absolute;top:12px;right:12px}
+.item-body{padding:18px 20px}
+.item-brand{font-size:16px;font-weight:700;color:var(--charcoal)}
+.item-sub{font-size:13px;color:var(--silver);margin-bottom:12px}
+.item-footer{display:flex;justify-content:space-between;align-items:center}
+
+/* ── BADGES ── */
+.credit-badge{background:var(--sage-pale);color:var(--sage-dark);border-radius:20px;padding:4px 11px;font-size:13px;font-weight:700;border:1px solid var(--sage-light)}
+.cond-badge{border-radius:12px;padding:3px 8px;font-size:11px;font-weight:600;color:#fff}
+
+/* ── PRODUCT PAGE ── */
+.product-inner{max-width:1100px;margin:0 auto;padding:44px 5vw}
+.back-btn{background:none;border:none;cursor:pointer;font-size:14px;color:var(--sage);font-weight:600;margin-bottom:36px;padding:0;display:flex;align-items:center;gap:6px;transition:gap .2s}
+.back-btn:hover{gap:10px}
+.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.product-img-wrap{border-radius:28px;overflow:hidden;box-shadow:0 20px 64px rgba(0,0,0,.13)}
+.product-img-wrap img{width:100%;height:520px;object-fit:cover;display:block}
+.product-details{}
+.product-brand{font-family:'Playfair Display',serif;font-size:42px;color:var(--charcoal);margin:14px 0 4px}
+.product-sub{font-size:16px;color:var(--silver);margin-bottom:26px}
+.product-desc{font-size:15px;color:var(--slate);line-height:1.8;background:var(--sage-mist);border-radius:16px;padding:18px 22px;margin-bottom:28px}
+.price-box{background:var(--white);border-radius:20px;padding:22px 26px;margin-bottom:28px;border:1px solid var(--sage-light)}
+.price-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
+.price-row+.price-row{border-top:1px solid var(--sage-pale)}
+.price-label{font-size:13px;color:var(--silver)}
+.price-val{font-size:13px;color:var(--slate);font-weight:600}
+.product-btns{display:flex;gap:12px;margin-bottom:20px}
+.btn-swap{flex:1;background:linear-gradient(135deg,var(--sage),var(--sage-dark));color:#fff;border:none;border-radius:18px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 8px 24px rgba(123,174,127,.4);transition:all .25s}
+.btn-swap:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(123,174,127,.55)}
+.btn-rent{flex:1;background:#fff;color:var(--sage-dark);border:2px solid var(--sage);border-radius:18px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .25s}
+.btn-rent:hover{background:var(--sage-pale)}
+.seller-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--silver)}
+.seller-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--sage-dark));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+
+/* ── UPLOAD PAGE ── */
+.upload-inner{max-width:640px;margin:0 auto;padding:60px 5vw}
+.upload-header{text-align:center;margin-bottom:48px}
+.upload-card{background:var(--white);border-radius:28px;padding:38px;box-shadow:0 8px 44px rgba(0,0,0,.07)}
+.drop-zone{border:2px dashed var(--sage-light);border-radius:20px;padding:40px;text-align:center;cursor:pointer;background:var(--sage-mist);transition:all .3s;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.drop-zone.drag{border-color:var(--sage);background:var(--sage-pale)}
+.drop-zone img.preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px}
+.drop-icon{font-size:48px;margin-bottom:12px}
+.drop-text{font-size:15px;color:var(--sage);font-weight:600}
+.drop-hint{font-size:13px;color:var(--silver);margin-top:6px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-group{margin-bottom:0}
+.form-label{font-size:13px;font-weight:600;color:var(--charcoal);display:block;margin-bottom:6px}
+.form-input,.form-select{width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid var(--sage-light);background:var(--sage-mist);font-size:14px;color:var(--charcoal);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.form-input:focus,.form-select:focus{border-color:var(--sage)}
+.condition-btns{display:flex;gap:10px;margin-bottom:28px}
+.cond-btn{flex:1;padding:10px 4px;border-radius:14px;border:1.5px solid var(--sage-light);background:var(--sage-mist);color:var(--slate);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.cond-btn.active{background:var(--sage);color:#fff;border-color:var(--sage)}
+.earn-box{background:linear-gradient(135deg,var(--sage-pale),#e8f5e8);border-radius:20px;padding:22px 26px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--sage-light)}
+.earn-num{font-size:32px;font-weight:800;color:var(--sage-dark)}
+.success-toast{background:var(--sage-pale);border:2px solid var(--sage);border-radius:20px;padding:22px 28px;margin-bottom:24px;text-align:center;animation:fadeUp .4s ease}
+.success-emoji{font-size:28px;margin-bottom:8px}
+.success-msg{color:var(--sage-dark);font-weight:700;font-size:16px}
+.success-credits{color:var(--sage);font-size:22px;font-weight:800;margin-top:4px}
+
+/* ── CONFIRM PAGE ── */
+.confirm-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 68px);padding:40px 5vw;background:var(--sage-mist)}
+.confirm-card{max-width:480px;width:100%;background:var(--white);border-radius:28px;padding:38px;box-shadow:0 8px 52px rgba(0,0,0,.1)}
+.confirm-title{font-family:'Playfair Display',serif;font-size:30px;color:var(--charcoal);margin-bottom:28px}
+.confirm-img{border-radius:16px;overflow:hidden;margin-bottom:28px;height:200px}
+.confirm-img img{width:100%;height:100%;object-fit:cover;display:block}
+.summary-box{background:var(--sage-mist);border-radius:20px;padding:22px 26px;margin-bottom:22px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--sage-light)}
+.summary-row:last-child{border-bottom:none;padding-top:16px;border-top:2px solid var(--sage-light);margin-top:8px}
+.summary-label{font-size:14px;color:var(--silver)}
+.balance-info{background:var(--sage-pale);border-radius:14px;padding:13px 16px;margin-bottom:20px;font-size:13px;color:var(--sage-dark)}
+.btn-confirm{width:100%;background:linear-gradient(135deg,var(--sage),var(--sage-dark));color:#fff;border:none;border-radius:18px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 8px 24px rgba(123,174,127,.45);transition:all .25s}
+.btn-confirm:hover{transform:translateY(-2px)}
+.btn-confirm:disabled{background:#ddd;box-shadow:none;cursor:not-allowed;transform:none}
+.done-card{text-align:center}
+.done-emoji{font-size:80px;margin-bottom:16px;animation:pop .5s ease}
+.done-title{font-family:'Playfair Display',serif;font-size:30px;color:var(--sage-dark);margin-bottom:12px}
+.done-sub{color:var(--slate);font-size:15px;line-height:1.7;margin-bottom:28px}
+
+/* ── PROFILE ── */
+.profile-inner{max-width:800px;margin:0 auto;padding:60px 5vw}
+.profile-header{background:linear-gradient(135deg,var(--sage),var(--sage-dark));border-radius:28px;padding:40px 40px 64px;margin-bottom:-44px;position:relative;overflow:hidden}
+.profile-blob{position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none}
+.profile-user{display:flex;align-items:center;gap:22px;position:relative}
+.profile-avatar{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.22);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0}
+.profile-name{color:#fff;font-family:'Playfair Display',serif;font-size:32px;margin-bottom:4px}
+.profile-meta{color:rgba(255,255,255,.8);font-size:14px}
+.profile-card{background:var(--white);border-radius:24px;padding:58px 36px 36px;box-shadow:0 8px 44px rgba(0,0,0,.07);margin-bottom:22px}
+.credits-display{background:var(--sage-pale);border-radius:20px;padding:22px 28px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--sage-light)}
+.credits-big{font-size:44px;font-weight:800;color:var(--sage-dark)}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:var(--sage-mist);border-radius:18px;padding:22px 16px;text-align:center}
+.stat-icon{font-size:30px;margin-bottom:7px}
+.stat-val{font-size:26px;font-weight:800;color:var(--sage-dark)}
+.stat-lbl2{font-size:12px;color:var(--silver)}
+.eco-bar-wrap{margin-bottom:16px}
+.eco-bar-header{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}
+.eco-bar-track{height:8px;background:var(--sage-pale);border-radius:10px;overflow:hidden}
+.eco-bar-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--sage-dark));border-radius:10px;transition:width 1.2s ease}
+
+/* ── FOOTER ── */
+footer{background:var(--charcoal);color:#fff;padding:56px 5vw 32px}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+.footer-logo{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:14px}
+.footer-logo span{color:var(--sage)}
+.footer-desc{font-size:14px;color:#9ca3af;line-height:1.75;max-width:260px}
+.footer-col-title{font-size:12px;font-weight:700;color:var(--sage-light);letter-spacing:1.5px;margin-bottom:16px;text-transform:uppercase}
+.footer-link{font-size:14px;color:#9ca3af;margin-bottom:10px;cursor:pointer;transition:color .2s;display:block}
+.footer-link:hover{color:#fff}
+.footer-bottom{border-top:1px solid #374151;padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:13px;color:#6b7280}
+.footer-eco{font-size:13px;color:var(--sage)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes floatA{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(-3deg) translateY(-10px)}}
+@keyframes floatB{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(4deg) translateY(-8px)}}
+@keyframes floatC{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(-2deg) translateY(-6px)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr}
+  .hero-collage{display:none}
+  .product-grid{grid-template-columns:1fr}
+  .product-img-wrap img{height:320px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .nav-links{gap:16px}
+}
+@media(max-width:600px){
+  .hero{padding:50px 5vw 60px}
+  .nav-links .nav-link:not(.active){display:none}
+  .footer-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ NAVBAR ════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <button class="logo" onclick="showPage('home')">Closet<span>Swap</span></button>
+    <div class="nav-links">
+      <button class="nav-link active" id="nl-home" onclick="showPage('home')">Accueil</button>
+      <button class="nav-link" id="nl-upload" onclick="showPage('upload')">Upload</button>
+      <button class="nav-link" id="nl-profile" onclick="showPage('profile')">Profil</button>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lb-fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" id="lb-en" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">🌿</div>
+        <div class="user-info">
+          <span class="user-label" id="uc-label">Mes crédits</span>
+          <span class="user-credits" id="uc-val">1 000 ✦</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════ HOME PAGE ════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-blob1"></div>
+    <div class="hero-blob2"></div>
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">🌿 <span data-fr="Mode circulaire & durable" data-en="Circular & sustainable fashion"></span></div>
+        <h1 class="hero-h1" data-fr="Échangez, louez," data-en="Swap, rent,">Échangez, louez,</h1>
+        <h1 class="hero-h1-green" data-fr="respirez." data-en="breathe.">respirez.</h1>
+        <p class="hero-sub" data-fr="La mode circulaire pour une garde-robe sans culpabilité. Chaque échange prolonge la vie d'un vêtement et préserve notre planète." data-en="Circular fashion for a guilt-free wardrobe. Every swap extends a garment's life and protects our planet.">La mode circulaire pour une garde-robe sans culpabilité. Chaque échange prolonge la vie d'un vêtement et préserve notre planète.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="document.getElementById('browse').scrollIntoView({behavior:'smooth'})" data-fr="Explorer maintenant →" data-en="Explore now →">Explorer maintenant →</button>
+          <button class="btn-outline" onclick="showPage('upload')" data-fr="↑ Uploader" data-en="↑ Upload">↑ Uploader</button>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num">2.4k+</div><div class="stat-lbl" data-fr="Articles" data-en="Items">Articles</div></div>
+          <div><div class="stat-num">1.8k+</div><div class="stat-lbl" data-fr="Membres" data-en="Members">Membres</div></div>
+          <div><div class="stat-num">98%</div><div class="stat-lbl" data-fr="Satisfaits" data-en="Satisfied">Satisfaits</div></div>
+        </div>
+      </div>
+      <div class="hero-collage">
+        <div class="collage-card c1"><img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=420&q=80" alt="dress" onerror="this.parentElement.style.background='#d4a5a5'"/></div>
+        <div class="collage-card c2"><img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=380&q=80" alt="coat" onerror="this.parentElement.style.background='#c4b5a5'"/></div>
+        <div class="collage-card c3"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=340&q=80" alt="fashion" onerror="this.parentElement.style.background='#d4a5c4'"/></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how">
+    <h2 class="section-title" data-fr="Comment ça marche ? ✦" data-en="How it works? ✦">Comment ça marche ? ✦</h2>
+    <div class="how-grid">
+      <div class="how-card" style="background:var(--sage-pale);border:1px solid rgba(178,216,181,.3)">
+        <div class="how-icon">📸</div>
+        <div class="how-num">01</div>
+        <div class="how-title" data-fr="Uploadez" data-en="Upload">Uploadez</div>
+        <div class="how-sub" data-fr="Ajoutez vos vêtements inutilisés et gagnez des crédits instantanément." data-en="Add your unused clothes and earn credits instantly.">Ajoutez vos vêtements inutilisés et gagnez des crédits instantanément.</div>
+      </div>
+      <div class="how-card" style="background:#e8f0f5;border:1px solid rgba(165,181,212,.2)">
+        <div class="how-icon">🔄</div>
+        <div class="how-num">02</div>
+        <div class="how-title" data-fr="Échangez" data-en="Swap">Échangez</div>
+        <div class="how-sub" data-fr="Utilisez vos crédits pour obtenir de nouvelles pièces qui vous ressemblent." data-en="Use your credits to get new pieces that match your style.">Utilisez vos crédits pour obtenir de nouvelles pièces qui vous ressemblent.</div>
+      </div>
+      <div class="how-card" style="background:#f5f0e8;border:1px solid rgba(212,196,165,.2)">
+        <div class="how-icon">🌍</div>
+        <div class="how-num">03</div>
+        <div class="how-title" data-fr="Bénéfice" data-en="Impact">Bénéfice</div>
+        <div class="how-sub" data-fr="Chaque échange prolonge la vie d'un vêtement et réduit les déchets textiles." data-en="Every swap extends a garment's life and reduces textile waste.">Chaque échange prolonge la vie d'un vêtement et réduit les déchets textiles.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAROUSEL -->
+  <section class="carousel-section">
+    <div class="carousel-header">
+      <h2 class="carousel-title" data-fr="Nouveautés ✦" data-en="New arrivals ✦">Nouveautés ✦</h2>
+      <div class="carousel-arrows">
+        <button class="arrow-btn" onclick="document.getElementById('ctrack').scrollBy({left:-280,behavior:'smooth'})">←</button>
+        <button class="arrow-btn" onclick="document.getElementById('ctrack').scrollBy({left:280,behavior:'smooth'})">→</button>
+      </div>
+    </div>
+    <div class="carousel-track" id="ctrack"></div>
+  </section>
+
+  <!-- BROWSE -->
+  <section class="browse-section" id="browse">
+    <div class="browse-inner">
+      <div class="cats" id="cats-bar"></div>
+      <div class="filters">
+        <span class="filter-label" data-fr="Filtres :" data-en="Filters :">Filtres :</span>
+        <select class="filter-select" id="filter-size" onchange="renderGrid()"></select>
+        <select class="filter-select" id="filter-brand" onchange="renderGrid()"></select>
+        <span class="items-count" id="items-count"></span>
+      </div>
+      <div class="items-grid" id="items-grid"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">Closet<span>Swap</span></div>
+          <p class="footer-desc" data-fr="La plateforme d'échange de vêtements pour une mode plus responsable et durable. 🌿" data-en="The clothing exchange platform for more responsible and sustainable fashion. 🌿">La plateforme d'échange de vêtements pour une mode plus responsable et durable. 🌿</p>
+        </div>
+        <div>
+          <div class="footer-col-title" data-fr="Plateforme" data-en="Platform">Plateforme</div>
+          <a class="footer-link" data-fr="Accueil" data-en="Home">Accueil</a>
+          <a class="footer-link">Upload</a>
+          <a class="footer-link" data-fr="Profil" data-en="Profile">Profil</a>
+          <a class="footer-link" data-fr="Crédits" data-en="Credits">Crédits</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Info</div>
+          <a class="footer-link" data-fr="À propos" data-en="About">À propos</a>
+          <a class="footer-link">Contact</a>
+          <a class="footer-link">Blog</a>
+          <a class="footer-link" data-fr="Presse" data-en="Press">Presse</a>
+        </div>
+        <div>
+          <div class="footer-col-title" data-fr="Légal" data-en="Legal">Légal</div>
+          <a class="footer-link" data-fr="Conditions" data-en="Terms">Conditions</a>
+          <a class="footer-link" data-fr="Confidentialité" data-en="Privacy">Confidentialité</a>
+          <a class="footer-link">Cookies</a>
+          <a class="footer-link">CGU</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span class="footer-copy" data-fr="© 2025 ClosetSwap · Fait avec 🌿 pour la planète" data-en="© 2025 ClosetSwap · Made with 🌿 for the planet">© 2025 ClosetSwap · Fait avec 🌿 pour la planète</span>
+        <span class="footer-eco">Mode circulaire ♻️</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════ UPLOAD PAGE ════════ -->
+<div class="page" id="page-upload">
+  <div class="upload-inner">
+    <div class="upload-header">
+      <div class="hero-badge" style="margin-bottom:16px">📸 Upload</div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:42px;color:var(--charcoal);margin-bottom:12px" data-fr="Uploader un vêtement" data-en="Upload a garment">Uploader un vêtement</h1>
+      <p style="font-size:16px;color:var(--slate);line-height:1.6" data-fr="Donnez une seconde vie à vos vêtements et gagnez des crédits." data-en="Give your clothes a second life and earn credits.">Donnez une seconde vie à vos vêtements et gagnez des crédits.</p>
+    </div>
+    <div id="upload-success" class="success-toast" style="display:none">
+      <div class="success-emoji">🎉</div>
+      <div class="success-msg" data-fr="Bravo ! Votre article a été publié." data-en="Congrats! Your item was published.">Bravo ! Votre article a été publié.</div>
+      <div class="success-credits">+100 crédits ajoutés !</div>
+    </div>
+    <div class="upload-card">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(event)"/>
+        <div id="drop-placeholder">
+          <div class="drop-icon">📸</div>
+          <div class="drop-text" data-fr="Glissez une photo ici" data-en="Drag a photo here">Glissez une photo ici</div>
+          <div class="drop-hint">JPG, PNG, WEBP · max 10MB</div>
+        </div>
+      </div>
+      <br/>
+      <div class="form-grid">
+        <div>
+          <label class="form-label" data-fr="Marque" data-en="Brand">Marque</label>
+          <input class="form-input" id="u-brand" placeholder="ex: Sézane"/>
+        </div>
+        <div>
+          <label class="form-label" data-fr="Taille" data-en="Size">Taille</label>
+          <select class="form-select" id="u-size">
+            <option value="">—</option>
+            <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+          </select>
+        </div>
+      </div>
+      <label class="form-label" data-fr="État" data-en="Condition">État</label>
+      <div class="condition-btns" id="cond-btns">
+        <button class="cond-btn" onclick="selectCond(this,'Neuf')" data-fr="Neuf" data-en="New">Neuf</button>
+        <button class="cond-btn" onclick="selectCond(this,'Excellent')" data-fr="Excellent" data-en="Excellent">Excellent</button>
+        <button class="cond-btn" onclick="selectCond(this,'Bon état')" data-fr="Bon état" data-en="Good">Bon état</button>
+        <button class="cond-btn" onclick="selectCond(this,'Usé')" data-fr="Usé" data-en="Worn">Usé</button>
+      </div>
+      <div class="earn-box">
+        <div>
+          <div style="font-size:13px;color:var(--slate);margin-bottom:4px" data-fr="Vous gagnerez" data-en="You'll earn">Vous gagnerez</div>
+          <div class="earn-num">+100 crédits</div>
+          <div style="font-size:13px;color:var(--silver)" data-fr="Équivalent : ~10€" data-en="Equivalent: ~€10">Équivalent : ~10€</div>
+        </div>
+        <div style="font-size:56px">🌿</div>
+      </div>
+      <button class="btn-primary" style="width:100%;border-radius:18px;padding:16px;font-size:16px" onclick="submitUpload()" data-fr="🌿 Publier l'article" data-en="🌿 Publish item">🌿 Publier l'article</button>
+    </div>
+  </div>
+  <!-- Footer inside upload too -->
+  <footer style="background:var(--charcoal);color:#fff;padding:28px 5vw;margin-top:60px">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <span style="font-family:'Playfair Display',serif;font-size:18px">Closet<span style="color:var(--sage)">Swap</span></span>
+      <span style="font-size:13px;color:#6b7280" data-fr="© 2025 ClosetSwap · Mode circulaire ♻️" data-en="© 2025 ClosetSwap · Circular fashion ♻️">© 2025 ClosetSwap · Mode circulaire ♻️</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════ PRODUCT PAGE ════════ -->
+<div class="page" id="page-product">
+  <div class="product-inner">
+    <button class="back-btn" onclick="showPage('home')">← <span data-fr="Retour aux articles" data-en="Back to items">Retour aux articles</span></button>
+    <div class="product-grid">
+      <div class="product-img-wrap">
+        <img id="prod-img" src="" alt="product" onerror="this.style.display='none';this.parentElement.style.minHeight='320px'"/>
+      </div>
+      <div class="product-details">
+        <div id="prod-cond"></div>
+        <h1 class="product-brand" id="prod-brand"></h1>
+        <div class="product-sub" id="prod-sub"></div>
+        <p class="product-desc" id="prod-desc"></p>
+        <div class="price-box">
+          <div class="price-row">
+            <span class="price-label" data-fr="Prix" data-en="Price">Prix</span>
+            <div style="text-align:right">
+              <span class="credit-badge" id="prod-credits"></span>
+              <div style="font-size:13px;color:var(--silver);margin-top:4px" id="prod-eur"></div>
+            </div>
+          </div>
+          <div class="price-row">
+            <span class="price-label" data-fr="Frais de service (10%)" data-en="Service fee (10%)">Frais de service (10%)</span>
+            <span class="price-val" id="prod-fee"></span>
+          </div>
+          <div class="price-row">
+            <span class="price-label" data-fr="Livraison" data-en="Shipping">Livraison</span>
+            <span class="price-val">3.00€</span>
+          </div>
+        </div>
+        <div class="product-btns">
+          <button class="btn-swap" onclick="goConfirm('swap')">🔄 <span data-fr="Échanger" data-en="Swap">Échanger</span></button>
+          <button class="btn-rent" onclick="goConfirm('rent')">🏷️ <span data-fr="Louer" data-en="Rent">Louer</span></button>
+        </div>
+        <div class="seller-row">
+          <div class="seller-avatar">🌿</div>
+          <span data-fr="Proposé par" data-en="Listed by">Proposé par</span> <strong id="prod-seller" style="color:var(--charcoal);margin-left:4px"></strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CONFIRM PAGE ════════ -->
+<div class="page" id="page-confirm">
+  <div class="confirm-wrap">
+    <div class="confirm-card" id="confirm-card">
+      <button class="back-btn" onclick="showPage('product')" style="margin-bottom:20px">← <span data-fr="Retour" data-en="Back">Retour</span></button>
+      <h2 class="confirm-title" id="confirm-title"></h2>
+      <div class="confirm-img"><img id="conf-img" src="" alt="" onerror="this.style.display='none'"/></div>
+      <div class="summary-box">
+        <div class="summary-row">
+          <span class="summary-label" data-fr="Article" data-en="Item">Article</span>
+          <span class="credit-badge" id="conf-credits"></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label" data-fr="Frais de service" data-en="Service fee">Frais de service</span>
+          <strong id="conf-fee" style="color:var(--slate)"></strong>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label" data-fr="Livraison" data-en="Shipping">Livraison</span>
+          <strong style="color:var(--slate)">3.00€</strong>
+        </div>
+        <div class="summary-row" style="border-top:2px solid var(--sage-light)!important">
+          <span style="font-weight:700;color:var(--charcoal);font-size:15px" data-fr="Total" data-en="Total">Total</span>
+          <div style="text-align:right">
+            <div style="font-size:18px;font-weight:800;color:var(--sage-dark)" id="conf-total-credits"></div>
+            <div style="font-size:13px;color:var(--silver)" id="conf-total-eur"></div>
+          </div>
+        </div>
+      </div>
+      <div class="balance-info" id="conf-balance"></div>
+      <button class="btn-confirm" id="btn-confirm" onclick="doConfirm()">✓ <span data-fr="Confirmer" data-en="Confirm">Confirmer</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PROFILE PAGE ════════ -->
+<div class="page" id="page-profile">
+  <div class="profile-inner">
+    <div class="profile-header">
+      <div class="profile-blob"></div>
+      <div class="profile-user">
+        <div class="profile-avatar">🌿</div>
+        <div>
+          <div class="profile-name">Marie Laurent</div>
+          <div class="profile-meta" data-fr="Membre depuis Mars 2024 · Paris 🇫🇷" data-en="Member since March 2024 · Paris 🇫🇷">Membre depuis Mars 2024 · Paris 🇫🇷</div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-card">
+      <div class="credits-display">
+        <div>
+          <div style="font-size:13px;color:var(--silver);margin-bottom:4px" data-fr="Mes crédits" data-en="My credits">Mes crédits</div>
+          <div class="credits-big" id="prof-credits">1 000 ✦</div>
+          <div style="font-size:13px;color:var(--silver)" id="prof-eur">~100€</div>
+        </div>
+        <div style="font-size:56px">💳</div>
+      </div>
+      <h3 style="font-weight:700;color:var(--charcoal);margin-bottom:16px" data-fr="Statistiques" data-en="Statistics">Statistiques</h3>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">👗</div><div class="stat-val">12</div><div class="stat-lbl2" data-fr="Articles uploadés" data-en="Uploaded items">Articles uploadés</div></div>
+        <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-val">8</div><div class="stat-lbl2" data-fr="Échanges" data-en="Swaps">Échanges</div></div>
+        <div class="stat-card"><div class="stat-icon">🌍</div><div class="stat-val">24kg</div><div class="stat-lbl2" data-fr="CO₂ économisé" data-en="CO₂ saved">CO₂ économisé</div></div>
+      </div>
+      <h3 style="font-weight:700;color:var(--charcoal);margin-bottom:18px" data-fr="Mon impact écologique 🌿" data-en="My eco impact 🌿">Mon impact écologique 🌿</h3>
+      <div class="eco-bar-wrap"><div class="eco-bar-header"><span data-fr="CO₂ économisé" data-en="CO₂ saved">CO₂ économisé</span><span style="color:var(--sage-dark);font-weight:600">65%</span></div><div class="eco-bar-track"><div class="eco-bar-fill" style="width:65%"></div></div></div>
+      <div class="eco-bar-wrap"><div class="eco-bar-header"><span data-fr="Eau préservée" data-en="Water preserved">Eau préservée</span><span style="color:var(--sage-dark);font-weight:600">78%</span></div><div class="eco-bar-track"><div class="eco-bar-fill" style="width:78%"></div></div></div>
+      <div class="eco-bar-wrap"><div class="eco-bar-header"><span data-fr="Déchets évités" data-en="Waste avoided">Déchets évités</span><span style="color:var(--sage-dark);font-weight:600">42%</span></div><div class="eco-bar-track"><div class="eco-bar-fill" style="width:42%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCRIPT ════════ -->
+<script>
+// ── DATA ──
+const ITEMS=[
+  {id:1,brand:"Sézane",size:"M",condition:"Excellent",credits:180,eur:18,category:"Robes",color:"#d4a5a5",image:"https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500&q=80",seller:"Marie L.",desc:"Robe midi florale légère, parfaite pour l'été. Tissu en coton biologique, fermeture zippée dans le dos."},
+  {id:2,brand:"Arket",size:"S",condition:"Bon état",credits:120,eur:12,category:"Chemises",color:"#a5b5d4",image:"https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80",seller:"Lucas B.",desc:"Chemise oxford bleue classique. 100% coton, légèrement oversize, idéale pour un look casual-chic."},
+  {id:3,brand:"COS",size:"L",condition:"Neuf",credits:220,eur:22,category:"Manteaux",color:"#c4b5a5",image:"https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=500&q=80",seller:"Sophie M.",desc:"Manteau oversize camel en laine mélangée. Coupe droite, boutons dorés discrets, doublure satinée."},
+  {id:4,brand:"& Other Stories",size:"XS",condition:"Bon état",credits:90,eur:9,category:"Tops",color:"#b5d4c4",image:"https://images.unsplash.com/photo-1554568218-0f1715e72254?w=500&q=80",seller:"Emma P.",desc:"Top en soie fluide couleur ivoire. Col V, manches courtes, tombé parfait."},
+  {id:5,brand:"Mango",size:"M",condition:"Très bon",credits:140,eur:14,category:"Pantalons",color:"#d4d4a5",image:"https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=500&q=80",seller:"Jade R.",desc:"Pantalon wide-leg taille haute, tissu fluide beige. Ceinture élastiquée, poches fonctionnelles."},
+  {id:6,brand:"Jacquemus",size:"S",condition:"Excellent",credits:300,eur:30,category:"Robes",color:"#d4a5c4",image:"https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=500&q=80",seller:"Clara V.",desc:"Mini robe structurée avec découpes asymétriques. Tissu crêpe de qualité, fermeture dos invisible."},
+  {id:7,brand:"Totême",size:"M",condition:"Neuf",credits:260,eur:26,category:"Tops",color:"#a5c4d4",image:"https://images.unsplash.com/photo-1581803118522-7b72a50f7e9f?w=500&q=80",seller:"Léa T.",desc:"Pull fin en cachemire blanc cassé. Encolure ronde, coupe slim moderne."},
+  {id:8,brand:"Weekday",size:"L",condition:"Bon état",credits:80,eur:8,category:"Jeans",color:"#a5b5c4",image:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&q=80",seller:"Tom D.",desc:"Jean straight-leg bleu délavé. Taille mi-haute, tissu denim stretch confortable."},
+];
+
+const CATS=["Tout","Robes","Chemises","Manteaux","Tops","Pantalons","Jeans"];
+const SIZES=["Toutes","XS","S","M","L","XL"];
+const BRANDS=["Toutes","Sézane","Arket","COS","& Other Stories","Mango","Jacquemus","Totême","Weekday"];
+const COND_COLORS={"Neuf":"#7BAE7F","Excellent":"#5a9060","Très bon":"#7ba8ae","Bon état":"#a8a87b","Usé":"#9ca3af"};
+
+let credits=1000,currentItem=null,currentMode='swap',currentCat='Tout',currentCond='',lang='fr';
+
+// ── LANG ──
+function setLang(l){
+  lang=l;
+  document.getElementById('lb-fr').className='lang-btn'+(l==='fr'?' active':'');
+  document.getElementById('lb-en').className='lang-btn'+(l==='en'?' active':'');
+  document.getElementById('uc-label').textContent=l==='fr'?'Mes crédits':'My credits';
+  document.querySelectorAll('[data-'+l+']').forEach(el=>{
+    if(el.tagName==='INPUT'||el.tagName==='BUTTON'||el.tagName==='SELECT')return;
+    el.textContent=el.getAttribute('data-'+l);
+  });
+  // Update selects
+  populateFilters();renderGrid();renderCarousel();
+}
+
+// ── NAVIGATION ──
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(el=>el.classList.remove('active'));
+  const nl=document.getElementById('nl-'+p);
+  if(nl)nl.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(p==='profile')updateProfile();
+}
+
+// ── SCROLL NAV ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>30);
+});
+
+// ── CREDIT BADGE HTML ──
+function creditBadge(c){return`<span class="credit-badge">🌿 ${c} crédits</span>`;}
+function condBadge(c){return`<span class="cond-badge" style="background:${COND_COLORS[c]||'#9ca3af'}">${c}</span>`;}
+
+// ── CAROUSEL ──
+function renderCarousel(){
+  const track=document.getElementById('ctrack');
+  track.innerHTML=ITEMS.map(item=>`
+    <div class="car-card" onclick="openProduct(${item.id})">
+      <div class="car-img" style="background:${item.color}">
+        <img src="${item.image}" alt="${item.brand}" onerror="this.style.display='none'"/>
+      </div>
+      <div class="car-body">
+        <div class="car-meta">${item.brand} · ${item.size}</div>
+        <div class="car-name">${item.category}</div>
+        <div class="car-footer">${creditBadge(item.credits)}${condBadge(item.condition)}</div>
+      </div>
+    </div>`).join('');
+  // drag scroll
+  let isDown=false,startX,scrollLeft;
+  track.addEventListener('mousedown',e=>{isDown=true;startX=e.pageX-track.offsetLeft;scrollLeft=track.scrollLeft;});
+  document.addEventListener('mouseup',()=>isDown=false);
+  document.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();track.scrollLeft=scrollLeft-(e.pageX-track.offsetLeft-startX);});
+}
+
+// ── CATEGORIES ──
+function renderCats(){
+  const bar=document.getElementById('cats-bar');
+  bar.innerHTML=CATS.map(c=>`<button class="cat-btn${c===currentCat?' active':''}" onclick="selectCat('${c}')">${c}</button>`).join('');
+}
+function selectCat(c){currentCat=c;renderCats();renderGrid();}
+
+// ── FILTERS ──
+function populateFilters(){
+  const fSize=document.getElementById('filter-size');
+  const fBrand=document.getElementById('filter-brand');
+  const sizeLabels=lang==='fr'?['Toutes','XS','S','M','L','XL']:['All','XS','S','M','L','XL'];
+  const brandLabels=lang==='fr'?['Toutes','Sézane','Arket','COS','& Other Stories','Mango','Jacquemus','Totême','Weekday']:['All','Sézane','Arket','COS','& Other Stories','Mango','Jacquemus','Totême','Weekday'];
+  fSize.innerHTML=sizeLabels.map((s,i)=>`<option value="${SIZES[i]}">${s}</option>`).join('');
+  fBrand.innerHTML=brandLabels.map((b,i)=>`<option value="${BRANDS[i]}">${b}</option>`).join('');
+}
+
+// ── GRID ──
+function renderGrid(){
+  const sz=document.getElementById('filter-size').value;
+  const br=document.getElementById('filter-brand').value;
+  const filtered=ITEMS.filter(i=>
+    (currentCat==='Tout'||i.category===currentCat)&&
+    (!sz||sz==='Toutes'||i.size===sz)&&
+    (!br||br==='Toutes'||i.brand===br)
+  );
+  document.getElementById('items-count').textContent=filtered.length+' article'+(filtered.length!==1?'s':'');
+  document.getElementById('items-grid').innerHTML=filtered.map(item=>`
+    <div class="item-card" onclick="openProduct(${item.id})">
+      <div class="item-img" style="background:${item.color}">
+        <img src="${item.image}" alt="${item.brand}" onerror="this.style.display='none'"/>
+        <div class="item-badge">${condBadge(item.condition)}</div>
+      </div>
+      <div class="item-body">
+        <div class="item-brand">${item.brand}</div>
+        <div class="item-sub">${item.category} · ${lang==='fr'?'Taille':'Size'} ${item.size}</div>
+        <div class="item-footer">${creditBadge(item.credits)}<span style="font-size:13px;color:var(--silver)">~${item.eur}€</span></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── OPEN PRODUCT ──
+function openProduct(id){
+  currentItem=ITEMS.find(i=>i.id===id);
+  if(!currentItem)return;
+  document.getElementById('prod-img').src=currentItem.image;
+  document.getElementById('prod-img').style.background=currentItem.color;
+  document.getElementById('prod-cond').innerHTML=condBadge(currentItem.condition);
+  document.getElementById('prod-brand').textContent=currentItem.brand;
+  document.getElementById('prod-sub').textContent=currentItem.category+' · '+(lang==='fr'?'Taille':'Size')+' '+currentItem.size;
+  document.getElementById('prod-desc').textContent=currentItem.desc;
+  document.getElementById('prod-credits').textContent='🌿 '+currentItem.credits+' crédits';
+  document.getElementById('prod-eur').textContent='~'+currentItem.eur+'€';
+  const fee=(currentItem.eur*0.1).toFixed(2);
+  document.getElementById('prod-fee').textContent=fee+'€';
+  document.getElementById('prod-seller').textContent=currentItem.seller;
+  showPage('product');
+}
+
+// ── CONFIRM ──
+function goConfirm(mode){
+  currentMode=mode;
+  if(!currentItem)return;
+  const fee=(currentItem.eur*0.1).toFixed(2);
+  const totalEur=(parseFloat(fee)+3).toFixed(2);
+  document.getElementById('confirm-title').textContent=
+    mode==='swap'?(lang==='fr'?"Confirmer l'échange":"Confirm Swap"):(lang==='fr'?"Confirmer la location":"Confirm Rental");
+  document.getElementById('conf-img').src=currentItem.image;
+  document.getElementById('conf-credits').textContent='🌿 '+currentItem.credits+' crédits';
+  document.getElementById('conf-fee').textContent=fee+'€';
+  document.getElementById('conf-total-credits').textContent=currentItem.credits+' crédits';
+  document.getElementById('conf-total-eur').textContent='+ '+totalEur+'€';
+  const after=credits-currentItem.credits;
+  document.getElementById('conf-balance').innerHTML=
+    (lang==='fr'?'💳 Solde actuel : ':'💳 Current balance: ')+
+    '<strong>'+credits.toLocaleString()+' crédits</strong> → '+(lang==='fr'?'après : ':'after: ')+
+    '<strong>'+after.toLocaleString()+' crédits</strong>';
+  const btn=document.getElementById('btn-confirm');
+  btn.disabled=credits<currentItem.credits;
+  showPage('confirm');
+}
+
+function doConfirm(){
+  credits-=currentItem.credits;
+  updateCreditsUI();
+  const card=document.getElementById('confirm-card');
+  card.innerHTML=`
+    <div class="done-card">
+      <div class="done-emoji">🎉</div>
+      <div class="done-title">${lang==='fr'?'Transaction réussie !':'Transaction successful!'}</div>
+      <p class="done-sub">${lang==='fr'?'Votre article est en route. Merci pour votre échange éco-responsable !':'Your item is on the way. Thank you for your eco-friendly swap!'}</p>
+      <button class="btn-primary" onclick="showPage('home');setTimeout(()=>document.getElementById('confirm-card').innerHTML='',100)">
+        ${lang==='fr'?"← Retour à l'accueil":"← Back to home"}
+      </button>
+    </div>`;
+}
+
+// ── UPLOAD ──
+let selectedCond='';
+function selectCond(btn,val){
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');selectedCond=val;
+}
+function handleFile(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const dz=document.getElementById('drop-zone');
+    let img=dz.querySelector('img.preview');
+    if(!img){img=document.createElement('img');img.className='preview';dz.appendChild(img);}
+    img.src=ev.target.result;
+    document.getElementById('drop-placeholder').style.display='none';
+  };
+  r.readAsDataURL(file);
+}
+function submitUpload(){
+  const brand=document.getElementById('u-brand').value.trim();
+  const size=document.getElementById('u-size').value;
+  if(!brand||!size||!selectedCond){
+    alert(lang==='fr'?'Veuillez remplir tous les champs.':'Please fill in all fields.');return;
+  }
+  credits+=100;updateCreditsUI();
+  const toast=document.getElementById('upload-success');
+  toast.style.display='block';
+  document.getElementById('u-brand').value='';
+  document.getElementById('u-size').value='';
+  selectedCond='';
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('active'));
+  const dz=document.getElementById('drop-zone');
+  const img=dz.querySelector('img.preview');
+  if(img)img.remove();
+  document.getElementById('drop-placeholder').style.display='flex';
+  setTimeout(()=>toast.style.display='none',3500);
+}
+
+// ── PROFILE ──
+function updateProfile(){
+  document.getElementById('prof-credits').textContent=credits.toLocaleString()+' ✦';
+  document.getElementById('prof-eur').textContent='~'+(credits/10).toFixed(0)+'€';
+}
+function updateCreditsUI(){
+  document.getElementById('uc-val').textContent=credits.toLocaleString()+' ✦';
+  if(document.getElementById('page-profile').classList.contains('active'))updateProfile();
+}
+
+// ── DRAG-DROP ──
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){
+    const inp=document.getElementById('file-input');
+    const dt=new DataTransfer();dt.items.add(file);inp.files=dt.files;
+    handleFile({target:{files:[file]}});
+  }
+});
+
+// ── INIT ──
+renderCarousel();
+renderCats();
+populateFilters();
+renderGrid();
+</script>
+</body>
+</html>
